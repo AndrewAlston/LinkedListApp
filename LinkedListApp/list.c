@@ -34,7 +34,7 @@ struct llist_container *container_new(void) {
     return new;
 }
 
-/* This creates a container and a complete ring - meaning that the tail entry will point to the head entry */
+/* container_new_ring creates a new container containing a ring - where the the linked list is circular in nature*/
 struct llist_container *container_new_ring(int ring_entries) {
     struct llist_container *new = calloc(1, sizeof(struct llist_container));
     struct llist *current = NULL;
@@ -126,6 +126,8 @@ struct llist_container *container_new_list(int list_entries) {
     return new;
 }
 
+/* list_set_from_array creates a linked list from an array.
+ NOTE: This does not copy data from the array - it merely points to array entries */
 int list_set_from_array(struct llist_container *cont, void *array_head, size_t entry_size, size_t n_entries) {
     if(!cont)
         return -1;
@@ -436,7 +438,9 @@ int llist_delete_node(struct llist_container *cont, struct llist *node, bool do_
     return 0;
 }
 
-/* llist_insert_data_copy inserts data at a specified node by copying it from source, node->data MUST be NULL when calling this */
+/* llist_insert_data_copy inserts data at a specified node by copying it from source,
+ node->data MUST be NULL when calling this.  Note - calling this means that you have to free up the data entries
+if you free up the linked list */
 int llist_insert_data_copy(struct llist_container *cont, struct llist *node, void *data, size_t d_size) {
     if(!cont || !node || node->data)
         return -1;
@@ -447,6 +451,7 @@ int llist_insert_data_copy(struct llist_container *cont, struct llist *node, voi
     return 0;
 }
 
+/* llist_compare_entries compares the data between two linked list entries */
 static inline bool llist_compare_entries(struct llist *entry1, struct llist *entry2) {
     return (entry1 && entry2 && (entry1->data_size == entry2->data_size) &&
             !memcmp(entry1->data, entry2->data, entry1->data_size));
@@ -455,7 +460,6 @@ static inline bool llist_compare_entries(struct llist *entry1, struct llist *ent
 /* llist_create_hash_map creates a hash map of every entry in the list, utilising collision avoidance where necessary
    This function returns a double pointer containing HASHMAP_SIZE entries, where unused entries in the array are set
    to NULL */
-
 struct llist_map **hash_map_create(struct llist_container *cont) {
     struct llist_map *h_map;
     bool found = false;
